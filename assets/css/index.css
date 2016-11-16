@@ -1,0 +1,194 @@
+@font-face {
+  font-family: "Lato";
+  src: url("../fonts/Lato/Lato-Regular.ttf");
+}
+@font-face {
+  font-family: "Raleway";
+  src: url("../fonts/Raleway/Raleway-Regular.ttf");
+}
+@font-face {
+  font-family: "RobotoMono";
+  src: url("../fonts/Roboto_Mono/RobotoMono-Regular.ttf");
+}
+
+body {
+	padding: 0;
+	margin: 0;
+	/*overflow: hidden;*/
+}
+
+html,body {
+	height: 100%;
+	width: 100%;
+	font-size: 14px;
+	font-family: 'Lato', 'helvetica', sans-serif;
+	background: black;
+	color: #CCC;
+}
+
+#text {
+	height: 100%;
+	width: 100%;
+}
+
+.text-dramatic {
+	font-size: 6rem;
+	/* font-weight: bolder; */
+	color: lightgrey;
+	text-shadow: 0 0 2em white, 0 0 2em #D47A2D, 0 0 1em #D47A2D;
+	text-align: center;
+}
+
+.background {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0 auto;
+	position: fixed;
+	z-index: -1;
+	background: #DCE6F1;
+/*    background-image: url("../img/Star2.png");
+	background-size: 50%;
+	background-position: 52% 0%;
+	background-repeat: no-repeat;
+	-webkit-filter: blur(15px) contrast(1.25);*/
+}
+
+.header {
+	height: 60px;
+	top: 0;
+	/*position: fixed;*/
+	/*background-color: #63BE9C;*/
+	z-index: 1000;
+}
+
+.header-menu-button {
+	color: #333;
+	transform: scaleX(2);
+	-webkit-transform: scaleX(2);
+	font-size: 3rem;
+	position: absolute;
+	margin-top: 12px;
+}
+.header-menu-button:visited,
+.header-menu-button:focus,
+.header-menu-button:active {
+	color: #333;
+}
+.header-menu-button:hover {
+	color: #555;
+}
+
+.header-across {
+	width: 100%;
+	box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+
+/*
+	Thanks to http://codepen.io/ericrasch/pen/Irlpm
+	Seed code for title treatment
+*/
+.title-header {
+	margin-top: 10px;
+	font-size: 2.5rem;
+	text-align: center;
+	display: table;
+	white-space: nowrap;
+}
+.title-header:before,
+.title-header:after {
+	border-top: 2px solid rebeccapurple;
+	content: '';
+	display: table-cell;
+	position: relative;
+	top: 24px;
+	width: 45%;
+}
+.title-header:before {
+	right: 1.5%;
+}
+.title-header:after {
+	left: 1.5%;
+}
+
+.table-response {
+	height: 544px;
+	overflow-y: auto;
+}
+
+/**
+ * Sidebar + Nav
+ */
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+	color: #222222;
+	background-color: #DCE6F1;
+}
+
+.lorem {
+	font-style: italic;
+	color: #AAA;
+}
+
+.form-group {
+	height: 100%;
+}
+
+.main-block {
+	padding: 25px 20px;
+}
+
+.loader-page {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	background: #63BE9C;
+	z-index: 1001;
+}
+
+.loader-page > div {
+	top: 50%;
+	left: 50%;
+	width: 0;
+}
+
+.loader-corner {
+	height: 64px;
+	width: 64px;
+	right: 0;
+	bottom: 0;
+	position: fixed;
+	z-index: 1002;
+	display: none;
+}
+
+.loader-corner > div {
+	top: 50%;
+	left: 50%;
+	width: 0;
+}
+
+.loader-corner > div > div {
+	border: 5px solid #263238;
+}
+
+.table-panel {
+	white-space: nowrap;
+}
+
+.table-panel-header > h3 {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.table-panel-body {
+	min-height: 210px;
+}
+
+.table-tab-details > ul > li {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.create-table-jumbotron {
+	overflow-y: auto;
+}
