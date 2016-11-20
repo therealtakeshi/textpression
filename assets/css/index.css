@@ -12,23 +12,30 @@
 }
 
 body {
+	height: 100%;
+	width: 100%;
 	padding: 0;
 	margin: 0;
+	background: #26292C;
+	color: #CCC;
 	/*overflow: hidden;*/
 }
 
 html,body {
-	height: 100%;
-	width: 100%;
 	font-size: 14px;
 	font-family: 'Lato', 'helvetica', sans-serif;
-	background: black;
-	color: #CCC;
 }
 
 #text {
 	height: 100%;
-	width: 100%;
+	padding-top: 200px;
+	/*width: 100%;*/
+	background: #26292C;
+}
+
+.text-default {
+	color: #121212;
+	font-size: 1rem;
 }
 
 .text-dramatic {
@@ -37,6 +44,11 @@ html,body {
 	color: lightgrey;
 	text-shadow: 0 0 2em white, 0 0 2em #D47A2D, 0 0 1em #D47A2D;
 	text-align: center;
+}
+
+#rawText {
+	margin-top: 140px;
+	color: #222;
 }
 
 .background {
@@ -89,6 +101,7 @@ html,body {
 	Seed code for title treatment
 */
 .title-header {
+	color: #34383c;
 	margin-top: 10px;
 	font-size: 2.5rem;
 	text-align: center;
@@ -122,15 +135,6 @@ html,body {
 .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
 	color: #222222;
 	background-color: #DCE6F1;
-}
-
-.lorem {
-	font-style: italic;
-	color: #AAA;
-}
-
-.form-group {
-	height: 100%;
 }
 
 .main-block {
@@ -169,26 +173,4 @@ html,body {
 
 .loader-corner > div > div {
 	border: 5px solid #263238;
-}
-
-.table-panel {
-	white-space: nowrap;
-}
-
-.table-panel-header > h3 {
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.table-panel-body {
-	min-height: 210px;
-}
-
-.table-tab-details > ul > li {
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.create-table-jumbotron {
-	overflow-y: auto;
 }

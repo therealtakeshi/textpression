@@ -11,6 +11,8 @@
 	<!-- <link rel="stylesheet" type="text/css" href="assets/css/bootstrap/bootstrap-theme.css"> -->
 	<link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/fileinput/fileinput.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/dat.gui.css">
+	<link rel="stylesheet" type="text/css" href="assets/css/animate/animate.min.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/index.css">
 	<!-- JS Head libs -->
 	<script>
@@ -20,10 +22,14 @@
 	}
 	</script>
 	<script src="assets/js/jquery-2.2.3.min.js" type="text/javascript"></script>
+	<script src="assets/js/jquery.lettering.js" type="text/javascript"></script>
+	<script src="assets/js/jquery.fittext.js" type="text/javascript"></script>
+	<script src="assets/js/jquery.textillate.js" type="text/javascript"></script>
 	<script src="assets/js/fileinput/fileinput.js" type="text/javascript"></script>
 	<script src="assets/js/fileinput/themes/fa.js" type="text/javascript"></script>
 	<script src="assets/js/handlebars-v4.0.5.js"></script>
 	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/dat.gui.min.js"></script>
 	<script src="assets/js/polyfills.js" type="text/javascript"></script>
 	<script>
 	if (window.module) {
@@ -33,15 +39,15 @@
 </head>
 
 <body tx-role='escape'>
-	<div class="background"></div>
+	<!-- <div class="background"></div> -->
 
-	<div class="loader-page" id="loader-page-container">
+<!-- 	<div class="loader-page" id="loader-page-container">
 		<div class="loader-inner ball-scale-ripple-multiple">
 			<div></div>
 			<div></div>
 			<div></div>
 		</div>
-	</div>
+	</div> -->
 
 	<div class="loader-corner" id="loader-corner-container">
 		<div class="loader-inner ball-scale-ripple-multiple">
@@ -53,7 +59,7 @@
 
 	<!-- <div class="header header-across"></div> -->
 
-	<div id="wrapper" tx-role='escape'>
+	<div id="wrapper" class='toggled' tx-role='escape'>
 		<!-- Sidebar -->
 		<div id="sidebar-wrapper">
 			<ul class="sidebar-nav">
@@ -81,7 +87,10 @@
 					<span class="title-header">Textpression</span>
 				</div>
 			</div>
-			<div class="col-xs-12 main-block">
+			<div class="col-xs-3 main-block">
+				<textarea id="rawText" rows='14' cols='60'></textarea>
+			</div>
+			<div class="col-xs-9 main-block">
 				<div id="text"></div>
 			</div>
 
