@@ -126,7 +126,37 @@ var tx = {
             whimsical: {},
             wistful: {},
             zen: {},
-        }
+        },
+        imgPaths: [
+            'q1p7bh3shj8-nasa.jpg',
+            'ugs_r4r46cw-greg-rakozy.jpg',
+            '8pd8ycjjkiq-maxime-le-conte-des-floris.jpg',
+            'r3ge7vemka-ishan-seefromthesky.jpg',
+            'paykyb-8er8-ian-schneider.jpg',
+            '2-aurelien-bellanger.jpg',
+            '4-sudiono-muji.jpg',
+            '8-dirk-sebregts.jpg',
+            '9-jens-mayer.jpg',
+            '10-marco-bonomo.jpg',
+            '4-ruben-dos-santos.jpg',
+            '5-calvin-chin.jpg',
+            '6-matthew-wiebe.jpg',
+            '7-davey-heuser.jpg',
+            '8-mika-ruusunen.jpg',
+            '10-sylwia-bartyzel.jpg',
+            'ehqi7rrwhre-cole-patrick.jpg',
+            'eyjdbbik7la-joseph-barrientos.jpg',
+            'rlyscmbf6ei-grzegorz-mleczek.jpg',
+            '4-hugo-kerr.jpg',
+            '10-hartmut-tobies.JPG',
+            '1-alberto-restifo.jpg',
+            '4-ales-krivec.jpg',
+            '3-liane-metzler.jpg',
+            '5-lance-anderson.jpg',
+            '7-israel-sundseth.jpg',
+            '8-jacki-potorke.jpg',
+            '10-steven-lewis.jpg'
+        ]
     },
     start: function () {
         this.print('#rawText', opts);
@@ -318,6 +348,7 @@ var tx = {
                     max: 75
                 })];
             },
+            imgPathPrefix: 'assets/img/unsplash/',
             rawTextElementSelector: '#rawText',
             textElementSelector: '#text',
             preferredPhraseLength: 4,
@@ -349,11 +380,30 @@ var tx = {
         //     }, phrase.display.readingTime);
         // };
 
-        $(tx.settings.self.textElementSelector)
-            .html('')
-            .append($textNode)
-            .children().eq(0)
-            .textillate(phrase.textillate);
+        $('.background')
+            .fadeOut(500, function () {
+                var self = this;
+
+                var imgPath = tx.settings.self.imgPathPrefix + tx.constants.imgPaths[Math.floor(Math.random() * tx.constants.imgPaths.length)];
+
+                $('<img/>').attr('src', imgPath).load(function() {
+                    $(this).remove(); // prevent memory leaks as @benweet suggested
+
+                    $(self).css({
+                        'background': 'no-repeat center url(' + imgPath + ')',
+                        'filter': 'blur(6px) saturate(0.8) brightness(0.5)',
+                        '-moz-filter': 'blur(6px) saturate(0.8) brightness(0.5)',
+                    })
+                    .fadeIn(500, function () {
+                        $(tx.settings.self.textElementSelector)
+                            .html('')
+                            .append($textNode)
+                            .children().eq(0)
+                            .textillate(phrase.textillate);
+                    });
+                });
+            });
+
 
         // if (phrase.display.fadeIn) {
         //     $(tx.settings.self.textElementSelector).fadeIn({
@@ -482,7 +532,8 @@ tx.gui = new dat.GUI({
     autoPlace: false
 });
 
-$('.header-menu').append(tx.gui.domElement);
+$('#debug-menu')
+    .append(tx.gui.domElement);
 
 tx.gui.add(opts, 'fade');
 tx.gui.add(opts, 'padding', 0, 200);
