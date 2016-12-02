@@ -4,13 +4,20 @@ var $ = $ || $$;
 var console = window.console;
 var _ = _;
 
-var tx = {
+var TX = {
     /**
-     * @namespace   tx.constants
-     * @memberOf    tx
+     * @namespace   TX.constants
+     * @memberOf    TX
      * @type {Object}
      */
     constants: {
+        wordList: wordList,
+        SYMBOL_EOL: '\n',
+        DELIMITER_SPACE: this.wordList.RESERVED[0],
+        DELIMITER_EOL: this.wordList.RESERVED[1],
+        DELIMITER_LOWERCASE: this.wordList.RESERVED[2],
+        DELIMITER_UPPERCASE: this.wordList.RESERVED[3],
+        DELIMITER_PROPERCASE: this.wordList.RESERVED[4],
         animateStyleOptions: [
             'bounce',
             'flash',
@@ -214,7 +221,7 @@ var tx = {
                     // in animation settings
                     in: {
                         // set the effect name
-                        effect: obj.effectIn || tx.settings.self.effectIn,
+                        effect: obj.effectIn || TX.settings.self.effectIn,
 
                         // set the delay factor applied to each consecutive character
                         delayScale: 1.5,
@@ -239,7 +246,7 @@ var tx = {
 
                     // out animation settings.
                     out: {
-                        effect: obj.effectOut || tx.settings.self.effectOut,
+                        effect: obj.effectOut || TX.settings.self.effectOut,
                         delayScale: 1.5,
                         delay: 50,
                         sync: false,
@@ -287,7 +294,7 @@ var tx = {
     },
 	queue: [],
 	/**
-	 * @memberOf tx
+	 * @memberOf TX
 	 * @namespace
 	 * @type {Object}
 	 */
@@ -296,7 +303,7 @@ var tx = {
 	handlers: {
 		click: function (event) {
             var getRole = function (element) {
-                var targetRole = $(element).attr('tx-role') || false;
+                var targetRole = $(element).attr('TX-role') || false;
 
                 if (targetRole === false) {
                     return getRole($(element).parent());
@@ -327,7 +334,7 @@ var tx = {
 			// }, 250);
 
             // $('#rawText').change(function () {
-            //     var text = tx.parseText($('#rawText').val());
+            //     var text = TX.parseText($('#rawText').val());
             //     console.log(text);
             // });
 		}
@@ -335,14 +342,14 @@ var tx = {
 	settings: {
 		self: {
             get effectIn () {
-                return tx.constants.animateStyleOptions[tx.create.random({
+                return TX.constants.animateStyleOptions[TX.create.random({
                     type: 'int',
                     min: 0,
                     max: 75
                 })];
             },
             get effectOut () {
-                return tx.constants.animateStyleOptions[tx.create.random({
+                return TX.constants.animateStyleOptions[TX.create.random({
                     type: 'int',
                     min: 0,
                     max: 75
@@ -369,11 +376,11 @@ var tx = {
         // var showCallback = function () {
         //     setTimeout( function () {
         //         if (phrase.display.fadeOut) {
-        //             $(tx.settings.self.textElementSelector).fadeOut({
+        //             $(TX.settings.self.textElementSelector).fadeOut({
         //                 complete: callback
         //             });
         //         } else {
-        //             $(tx.settings.self.textElementSelector).hide({
+        //             $(TX.settings.self.textElementSelector).hide({
         //                 complete: callback
         //             });
         //         }
@@ -384,7 +391,7 @@ var tx = {
             .fadeOut(500, function () {
                 var self = this;
 
-                var imgPath = tx.settings.self.imgPathPrefix + tx.constants.imgPaths[Math.floor(Math.random() * tx.constants.imgPaths.length)];
+                var imgPath = TX.settings.self.imgPathPrefix + TX.constants.imgPaths[Math.floor(Math.random() * TX.constants.imgPaths.length)];
 
                 $('<img/>').attr('src', imgPath).load(function() {
                     $(this).remove(); // prevent memory leaks as @benweet suggested
@@ -395,7 +402,7 @@ var tx = {
                         '-moz-filter': 'blur(6px) saturate(0.8) brightness(0.5)',
                     })
                     .fadeIn(500, function () {
-                        $(tx.settings.self.textElementSelector)
+                        $(TX.settings.self.textElementSelector)
                             .html('')
                             .append($textNode)
                             .children().eq(0)
@@ -406,24 +413,130 @@ var tx = {
 
 
         // if (phrase.display.fadeIn) {
-        //     $(tx.settings.self.textElementSelector).fadeIn({
+        //     $(TX.settings.self.textElementSelector).fadeIn({
         //         complete: showCallback
         //     });
         // } else {
-        //     $(tx.settings.self.textElementSelector).show({
+        //     $(TX.settings.self.textElementSelector).show({
         //         complete: showCallback
         //     });
         // }
     },
     next: function () {
-        var phrase = tx.queue.shift();
-        tx.animate(phrase, function () {
-            if (tx.queue.length > 0) {
-                tx.next();
+        var phrase = TX.queue.shift();
+        TX.animate(phrase, function () {
+            if (TX.queue.length > 0) {
+                TX.next();
             } else {
                 console.log('done');
             }
         });
+    },
+    makeHash: function (string) {
+        if (history.pushState) {
+            history.pushState(null, null, '#' + string);
+        }
+        else {
+            location.hash = '#' + string;
+        }
+    },
+    cleanWord: function (word) {
+        return word
+                .replace(/[\u2018\u2019]/g, "'") // Replace smart single quotes
+                .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
+                .trim()
+                .toUpperCase();
+    },
+    changeCaseOfText: function (text, requestedCase) {
+        if (requestedCase === 'UPPERCASE') {
+            return String(text).toUpperCase();
+        } else if (requestedCase === 'LOWERCASE') {
+            return String(text).toLowerCase();
+        } else if (requestedCase === 'PROPERCASE') {
+            return String(text).replace(/\w\S*/g, function(TXt){return TXt.charAt(0).toUpperCase() + TXt.substr(1).toLowerCase();});
+        } else {
+            return String(text);
+        }
+    },
+    decodeTextToArray: function (text) {
+        var returnArray = text.split(TX.constants.DELIMITER_EOL);
+
+        for (var i = 0; i < returnArray.length; i++) {
+            returnArray[i] = returnArray[i].split(TX.constants.DELIMITER_SPACE);
+        }
+
+        return returnArray;
+    },
+    convertArrayToText: function (array) {
+        var returnString = '';
+        var wordInt;
+
+        for (var i = 0; i < array.length; i++) {
+            for (var j = 0; j < array[i].length; j++) {
+                if (j !== 0) returnString += ' ';
+
+                wordInt = parseInt(array[i][j], 36);
+                if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length + TX.constants.wordList.PUNCTUATION.length) {
+                    if (wordInt < TX.constants.wordList.WORD.length) {
+                        returnString += TX.changeCaseOfText(TX.constants.wordList.WORD[wordInt], 'LOWERCASE');
+                    } else if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length) {
+                        returnString += TX.changeCaseOfText(TX.constants.wordList.PHRASES[wordInt - TX.constants.wordList.WORD.length], 'LOWERCASE');
+                    } else if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length + TX.constants.wordList.PUNCTUATION.length) {
+                        returnString += TX.constants.wordList.PUNCTUATION[wordInt++ - TX.constants.wordList.WORD.length - TX.constants.wordList.PHRASES.length];
+                    } else {
+                        returnString += array[i][j];
+                    }
+                } else {
+                    returnString += array[i][j];
+                }
+            }
+            returnString += TX.constants.SYMBOL_EOL;
+        }
+
+        return returnString;
+    },
+    encodeArrayToText: function (array) {
+        var returnString = '';
+
+        for (var i = 0; i < array.length; i++) {
+            returnString += array[i].join(TX.constants.DELIMITER_SPACE);
+            returnString += TX.constants.DELIMITER_EOL;
+        }
+
+        TX.makeHash(returnString);
+
+        return returnString;
+    },
+    convertTextToArray: function (text) {
+        var phrases = text.split(this.settings.self.phraseTerminator);
+        var tempPhrase;
+        var tempArray;
+        var word;
+        var wordInd;
+        var wordIndPhrase;
+        var returnArray = [];
+
+        for (var i = 0; i < phrases.length; i++) {
+            tempPhrase = phrases[i].split(' ');
+            tempArray = [];
+            for (var j = 0; j < tempPhrase.length; j++) {
+                word = TX.cleanWord(tempPhrase[j]);
+                wordInd = TX.constants.wordList.WORD.indexOf(word);
+                wordIndPhrase = TX.constants.wordList.PHRASES.indexOf(word);
+                if (wordInd !== -1) {
+                    wordInd = wordInd.toString(36);
+                    tempArray.push(wordInd);
+                } else if (wordIndPhrase !== -1) {
+                    wordIndPhrase = Number(wordIndPhrase + TX.constants.wordList.WORD.length).toString(36);
+                    tempArray.push(wordIndPhrase);
+                } else {
+                    tempArray.push(word);
+                }
+            }
+            returnArray.push(tempArray);
+        }
+
+        return returnArray;
     },
     parseText: function (elementSelector = false) {
         if (!elementSelector) return false;
@@ -458,7 +571,7 @@ var tx = {
                 elementSelector: elementSelector,
                 text: phrases[i],
                 callbackFinal: function () {
-                    tx.next();
+                    TX.next();
                 }
             });
 
@@ -475,12 +588,12 @@ var tx = {
 
         console.log(text);
 
-        tx.queue = text;
-        tx.next();
+        TX.queue = text;
+        TX.next();
     },
 	/**
-	 * @namespace   tx.utils
-	 * @memberOf    tx
+	 * @namespace   TX.utils
+	 * @memberOf    TX
 	 * @type {Object}
 	 */
 	utils: {
@@ -528,24 +641,24 @@ var opts = {
     wait: 900
 };
 
-tx.gui = new dat.GUI({
+TX.gui = new dat.GUI({
     autoPlace: false
 });
 
 $('#debug-menu')
-    .append(tx.gui.domElement);
+    .append(TX.gui.domElement);
 
-tx.gui.add(opts, 'fade');
-tx.gui.add(opts, 'padding', 0, 200);
-tx.gui.add(opts, 'wait');
-tx.gui.add(tx, 'start');
+TX.gui.add(opts, 'fade');
+TX.gui.add(opts, 'padding', 0, 200);
+TX.gui.add(opts, 'wait');
+TX.gui.add(TX, 'start');
 
 
 
 $(document).ready(function(e, f) {
-    tx.handlers.onLoad();
+    TX.handlers.onLoad();
 });
 
 $(window).click(function(event) {
-    tx.handlers.click(event);
+    TX.handlers.click(event);
 });
