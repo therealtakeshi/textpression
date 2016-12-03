@@ -1,106 +1,71 @@
 <!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>by @therealtakeshi</title>
-	<!-- CSS Head libs -->
-	<link rel="stylesheet" type="text/css" href="assets/css/loaders/loaders.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap/bootstrap.css">
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/yeti/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/simple-sidebar.css">
-	<!-- <link rel="stylesheet" type="text/css" href="assets/css/bootstrap/bootstrap-theme.css"> -->
-	<link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/fileinput/fileinput.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/dat.gui.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/animate/animate.min.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/index.css">
-	<!-- JS Head libs -->
-	<script>
-	if (typeof module === 'object') {
-		window.module = module;
-		module = undefined;
-	}
-	</script>
-	<script src="assets/js/jquery-2.2.3.min.js" type="text/javascript"></script>
-	<script src="assets/js/jquery.lettering.js" type="text/javascript"></script>
-	<script src="assets/js/jquery.fittext.js" type="text/javascript"></script>
-	<script src="assets/js/jquery.textillate.js" type="text/javascript"></script>
-	<script src="assets/js/fileinput/fileinput.js" type="text/javascript"></script>
-	<script src="assets/js/fileinput/themes/fa.js" type="text/javascript"></script>
-	<script src="assets/js/handlebars-v4.0.5.js"></script>
-	<script src="assets/js/bootstrap.min.js"></script>
-	<script src="assets/js/dat.gui.min.js"></script>
-	<script src="assets/js/polyfills.js" type="text/javascript"></script>
-	<script>
-	if (window.module) {
-		module = window.module;
-	}
-	</script>
-</head>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Textpression by therealtakeshi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Textpression</h1>
+      <h2 class="project-tagline">A drop-in JavaScript library to make text fun and dramatic.</h2>
+      <a href="https://github.com/therealtakeshi/textpression" class="btn">View on GitHub</a>
+      <a href="https://github.com/therealtakeshi/textpression/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/therealtakeshi/textpression/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-<body TX-role='escape'>
-	<!-- <div class="background"></div> -->
+    <section class="main-content">
+      <h3>
+<a id="mission" class="anchor" href="#mission" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Mission</h3>
 
-<!-- 	<div class="loader-page" id="loader-page-container">
-		<div class="loader-inner ball-scale-ripple-multiple">
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-	</div> -->
+<p><strong>Jargon:</strong> Textpression is an engine for semantically parsing and dynamically rendering pieces of text in an expressive and additive way.<br>
+<strong>Normal:</strong> Textpression is some code that'll read some text and generate a cool, sharable video-like thing for it.</p>
 
-	<div class="loader-corner" id="loader-corner-container">
-		<div class="loader-inner ball-scale-ripple-multiple">
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-	</div>
+<h3>
+<a id="goals" class="anchor" href="#goals" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Goals</h3>
 
-	<!-- <div class="header header-across"></div> -->
+<p>Textpression is meant:</p>
 
-	<div id="wrapper" class='' TX-role='escape'>
-		<!-- Sidebar -->
-		<div id="sidebar-wrapper">
-			<ul class="sidebar-nav">
-				<li class="sidebar-brand">
-					<a href="#">
-						Textpression
-					</a>
-				</li>
-				<ul class="nav nav-pills nav-stacked">
-					<li role="presentation" class="active"><a href="#" id="sidebar-nav-home">Home</a></li>
-					<li role="separator" class="divider"></li>
-					<li role="presentation">
-						<textarea id="rawText" rows='18' cols='56'></textarea>
-					</li>
-				</ul>
-			</ul>
-		</div>
+<ul>
+<li>To be easy to get started from a simple HTML page</li>
+<li>To be fun to use for anyone, for any text</li>
+<li>To be Desktop-/Mobile-agnostic</li>
+<li>To dramatize and more deeply express text</li>
+<li>A learning experience for me and anyone looking at the code</li>
+</ul>
 
-		<div class="container-fluid" TX-role='escape'>
-			<div class="background"></div>
-			<div class="col-xs-12 header header-menu" TX-role='escape'>
-				<div class="col-xs-12 row">
-					<div class="col-xs-1">
-						<a href="#" class="header-menu-button" id="menu-toggle" TX-role='menu-toggle'><span class="glyphicon glyphicon-menu-hamburger"></span></a>
-					</div>
-					<div class="col-xs-11 title">
-						<span class="title-header">Textpression</span>
-					</div>
-				</div>
-				<div class="col-xs-12 row" id="debug-menu"></div>
-			</div>
-			<div class="col-xs-12 main-block" id="text">
-				<!-- <div id="text"></div> -->
-			</div>
+<h3>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h3>
 
-			<div class="modal" id="modal-master"></div>
-		</div>
-	</div>
+<ul>
+<li>Easy sharing using encoded-text URL hash</li>
+<li>Very pretty backgrounds and effects</li>
+<li>MIT licensed</li>
+<li>Dynamic semantic parsing (per-phrase sentiment analysis) // TODO</li>
+</ul>
 
-	<!-- JS Body libs -->
-	<script src="assets/js/60k.js" type="text/javascript"></script>
-	<script src="assets/js/index.js" type="text/javascript"></script>
-</body>
+<h3>
+<a id="libraries" class="anchor" href="#libraries" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Libraries</h3>
+
+<p>Textpression uses lots of different 3rd-party libraries. Full list to come later as things take more shape.</p>
+
+<h3>
+<a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h3>
+
+<p>Written and edited by <a href="https://twitter.com/therealtakeshi">@therealtakeshi</a>. Questions/comments go there.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/therealtakeshi/textpression">Textpression</a> is maintained by <a href="https://github.com/therealtakeshi">therealtakeshi</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
 </html>
