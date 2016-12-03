@@ -18,6 +18,7 @@ var TX = {
         DELIMITER_LOWERCASE: this.wordList.RESERVED[2],
         DELIMITER_UPPERCASE: this.wordList.RESERVED[3],
         DELIMITER_PROPERCASE: this.wordList.RESERVED[4],
+        DELIMITER_VOCAB: this.wordList.RESERVED[5],
         animateStyleOptions: [
             'bounce',
             'flash',
@@ -166,7 +167,8 @@ var TX = {
         ]
     },
     start: function () {
-        this.print('#rawText', opts);
+        var text = TX.convertArrayToText(TX.decodeTextToArray(location.hash.substring(1, location.hash.length)));
+        this.print(text, opts);
     },
     create: {
         phrase: function (obj) {
@@ -444,15 +446,14 @@ var TX = {
         return word
                 .replace(/[\u2018\u2019]/g, "'") // Replace smart single quotes
                 .replace(/[\u201C\u201D]/g, '"') // Replace smart double quotes
-                .trim()
-                .toUpperCase();
+                .trim();
     },
     changeCaseOfText: function (text, requestedCase) {
-        if (requestedCase === 'UPPERCASE') {
+        if (requestedCase === 'UPPERCASE' || requestedCase === TX.constants.DELIMITER_UPPERCASE) {
             return String(text).toUpperCase();
-        } else if (requestedCase === 'LOWERCASE') {
+        } else if (requestedCase === 'LOWERCASE' || requestedCase === TX.constants.DELIMITER_LOWERCASE) {
             return String(text).toLowerCase();
-        } else if (requestedCase === 'PROPERCASE') {
+        } else if (requestedCase === 'PROPERCASE' || requestedCase === TX.constants.DELIMITER_PROPERCASE) {
             return String(text).replace(/\w\S*/g, function(TXt){return TXt.charAt(0).toUpperCase() + TXt.substr(1).toLowerCase();});
         } else {
             return String(text);
@@ -460,36 +461,42 @@ var TX = {
     },
     decodeTextToArray: function (text) {
         var returnArray = text.split(TX.constants.DELIMITER_EOL);
-
-        for (var i = 0; i < returnArray.length; i++) {
-            returnArray[i] = returnArray[i].split(TX.constants.DELIMITER_SPACE);
-        }
-
         return returnArray;
     },
     convertArrayToText: function (array) {
         var returnString = '';
+        var word;
+        var wordCase;
         var wordInt;
+        var tempPhrase;
+        var splitRegex = new RegExp(/(?=[⌉⌈⌊⌋])/, 'g');
 
         for (var i = 0; i < array.length; i++) {
-            for (var j = 0; j < array[i].length; j++) {
-                if (j !== 0) returnString += ' ';
+            tempPhrase = array[i].split(splitRegex);
 
-                wordInt = parseInt(array[i][j], 36);
-                if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length + TX.constants.wordList.PUNCTUATION.length) {
+            for (var j = 0; j < tempPhrase.length; j++) {
+                if (j !== 0) returnString += ' '; // Adds spaces between words
+                word = tempPhrase[j];
+                wordCase = word.substr(0, 1);
+                word = word.substr(1);
+                wordInt = parseInt(word, 36);
+                if (wordCase === TX.constants.DELIMITER_VOCAB) {
+                    returnString += word;
+                } else if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length + TX.constants.wordList.PUNCTUATION.length) {
                     if (wordInt < TX.constants.wordList.WORD.length) {
-                        returnString += TX.changeCaseOfText(TX.constants.wordList.WORD[wordInt], 'LOWERCASE');
+                        returnString += TX.changeCaseOfText(TX.constants.wordList.WORD[wordInt], wordCase);
                     } else if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length) {
-                        returnString += TX.changeCaseOfText(TX.constants.wordList.PHRASES[wordInt - TX.constants.wordList.WORD.length], 'LOWERCASE');
+                        returnString += TX.changeCaseOfText(TX.constants.wordList.PHRASES[wordInt - TX.constants.wordList.WORD.length], wordCase);
                     } else if (wordInt < TX.constants.wordList.WORD.length + TX.constants.wordList.PHRASES.length + TX.constants.wordList.PUNCTUATION.length) {
                         returnString += TX.constants.wordList.PUNCTUATION[wordInt++ - TX.constants.wordList.WORD.length - TX.constants.wordList.PHRASES.length];
                     } else {
-                        returnString += array[i][j];
+                        returnString += word;
                     }
                 } else {
-                    returnString += array[i][j];
+                    returnString += word;
                 }
             }
+
             returnString += TX.constants.SYMBOL_EOL;
         }
 
@@ -499,7 +506,7 @@ var TX = {
         var returnString = '';
 
         for (var i = 0; i < array.length; i++) {
-            returnString += array[i].join(TX.constants.DELIMITER_SPACE);
+            returnString += array[i].join('');
             returnString += TX.constants.DELIMITER_EOL;
         }
 
@@ -512,8 +519,10 @@ var TX = {
         var tempPhrase;
         var tempArray;
         var word;
+        var wordCase;
         var wordInd;
         var wordIndPhrase;
+        var wordNotFound;
         var returnArray = [];
 
         for (var i = 0; i < phrases.length; i++) {
@@ -521,26 +530,74 @@ var TX = {
             tempArray = [];
             for (var j = 0; j < tempPhrase.length; j++) {
                 word = TX.cleanWord(tempPhrase[j]);
-                wordInd = TX.constants.wordList.WORD.indexOf(word);
-                wordIndPhrase = TX.constants.wordList.PHRASES.indexOf(word);
+                wordCase = TX.findCase(word);
+                wordInd = TX.constants.wordList.WORD.indexOf(word.toUpperCase());
+                wordIndPhrase = TX.constants.wordList.PHRASES.indexOf(word.toUpperCase());
+                wordNotFound = false;
+
                 if (wordInd !== -1) {
                     wordInd = wordInd.toString(36);
-                    tempArray.push(wordInd);
+                    word = wordInd;
                 } else if (wordIndPhrase !== -1) {
                     wordIndPhrase = Number(wordIndPhrase + TX.constants.wordList.WORD.length).toString(36);
-                    tempArray.push(wordIndPhrase);
+                    word = wordIndPhrase;
                 } else {
-                    tempArray.push(word);
+                    wordNotFound = true;
                 }
+
+                if (wordNotFound) {
+                    word = TX.constants.DELIMITER_VOCAB + word;
+                } else if (wordCase === 'UPPERCASE') {
+                    word = TX.constants.DELIMITER_UPPERCASE + word;
+                } else if (wordCase === 'LOWERCASE') {
+                    word = TX.constants.DELIMITER_LOWERCASE + word;
+                } else if (wordCase === 'PROPERCASE') {
+                    word = TX.constants.DELIMITER_PROPERCASE + word;
+                }
+
+                tempArray.push(word);
             }
             returnArray.push(tempArray);
         }
 
         return returnArray;
     },
-    parseText: function (elementSelector = false) {
-        if (!elementSelector) return false;
-        var text = $(elementSelector).val();
+    convert: function () {
+        TX.encodeArrayToText(TX.convertTextToArray($('#rawText').val()));
+    },
+    findCase: function (word) {
+        var letters = word.split('');
+        var isProperCase = false;
+        var uppercaseChars = 0;
+        var punctuationChars = 0;
+
+        for (var i = 0; i < letters.length; i++) {
+            if (letters[i] !== letters[i].toUpperCase() && letters[i] === letters[i].toLowerCase()) {
+                if (i === 0) {
+                    return 'LOWERCASE';
+                }
+            } else if (letters[i] === letters[i].toUpperCase() && letters[i] !== letters[i].toLowerCase()) {
+                if (i === 0) {
+                    isProperCase = true;
+                } else {
+                    isProperCase = false;
+                }
+                uppercaseChars++;
+            } else {
+                punctuationChars++;
+            }
+        }
+
+        if (uppercaseChars === letters.length) {
+            return 'UPPERCASE';
+        } else if (isProperCase) {
+            return 'PROPERCASE';
+        } else {
+            return 'UNKNOWNCASE';
+        }
+    },
+    parseText: function (text = false) {
+        if (!text) return false;
         var returnVal = [];
         var i = 0;
         var j = 0;
@@ -568,7 +625,6 @@ var TX = {
             // tempString = tempArr.join(' ');
             // returnVal.push(tempString);
             tempPhrase = this.create.phrase({
-                elementSelector: elementSelector,
                 text: phrases[i],
                 callbackFinal: function () {
                     TX.next();
@@ -581,8 +637,8 @@ var TX = {
 
         return returnVal;
     },
-    print: function (elementSelector = false, options = false) {
-        var text = this.parseText(elementSelector);
+    print: function (text = false, options = false) {
+        var text = this.parseText(text);
         var steps = text.length;
         var i = 0;
 
@@ -651,6 +707,7 @@ $('#debug-menu')
 TX.gui.add(opts, 'fade');
 TX.gui.add(opts, 'padding', 0, 200);
 TX.gui.add(opts, 'wait');
+TX.gui.add(TX, 'convert');
 TX.gui.add(TX, 'start');
 
 
