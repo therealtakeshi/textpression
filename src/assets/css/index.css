@@ -10,6 +10,10 @@
   font-family: "RobotoMono";
   src: url("../fonts/Roboto_Mono/RobotoMono-Regular.ttf");
 }
+@font-face {
+  font-family: "Lemon/Milk";
+  src: url("../fonts/lemon_milk/LemonMilk.otf");
+}
 
 body {
 	height: 100%;
@@ -23,7 +27,7 @@ body {
 
 html,body {
 	font-size: 14px;
-	font-family: 'Lato', 'helvetica', sans-serif;
+	font-family: 'Lemon/Milk', 'Lato', 'helvetica', sans-serif;
 }
 
 #wrapper {
@@ -54,6 +58,7 @@ html,body {
 	color: lightgrey;
 	text-shadow: 0 0 2em white, 0 0 2em #D47A2D, 0 0 1em #D47A2D;
 	text-align: center;
+    font-family: 'Lemon/Milk', 'Lato', 'helvetica', sans-serif;
 }
 
 #rawText {
@@ -81,7 +86,7 @@ html,body {
 	top: 0;
 	/*position: fixed;*/
 	/*background-color: #63BE9C;*/
-	z-index: 1000;
+	/*z-index: 1000;*/
 }
 
 .header-menu-button {
@@ -91,6 +96,7 @@ html,body {
 	font-size: 3rem;
 	position: absolute;
 	margin-top: 12px;
+    opacity: 0.6;
 }
 .header-menu-button:visited,
 .header-menu-button:focus,

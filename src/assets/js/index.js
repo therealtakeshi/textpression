@@ -166,11 +166,133 @@ var TX = {
             '10-steven-lewis.jpg'
         ]
     },
-    start: function () {
-        var text = TX.convertArrayToText(TX.decodeTextToArray(location.hash.substring(1, location.hash.length)));
-        this.print(text, opts);
-    },
+    debug: true,
     create: {
+        event: function (obj, autoAdd) {
+            var event = {
+                id: TX.eventQueue.newEventId(),
+                dateCreated: new Date(),
+                type: obj.type || 'generic-event',
+                _context: obj.context || false,
+                _pre: (typeof obj.pre === 'function') ? obj.pre : function (resolve) {
+                    resolve(true);
+                },
+                _main: obj.main || function (resolve) {
+                    resolve(true);
+                },
+                _post: (typeof obj.post === 'function') ? obj.post : function (resolve) {
+                    resolve(true);
+                },
+                pre: function () {
+                    var self = this;
+                    return new Promise(function (resolve, reject) {
+                        self._pre(resolve, reject, self._context);
+                    });
+                },
+                main: function () {
+                    var self = this;
+                    return new Promise(function (resolve, reject) {
+                        self._main(resolve, reject, self._context);
+                    });
+                },
+                post: function () {
+                    var self = this;
+                    return new Promise(function (resolve, reject) {
+                        self._post(resolve, reject, self._context);
+                    });
+                },
+                addFirst: function () {
+                    TX.eventQueue.addFirst(this);
+                },
+                addLast: function () {
+                    TX.eventQueue.addLast(this);
+                },
+                run: function () {
+                    var self = this;
+                    TX.eventQueue.isRunningEvent = true;
+                    console.log(this);
+                    self.pre().then(function() {
+                        self.main().then(function () {
+                            self.post().then(function () {
+                                TX.eventQueue.isRunningEvent = false;
+                                TX.eventQueue.go();
+                            }).catch(function () {
+                                console.error('Error on post.');
+                            });
+                        }).catch(function () {
+                            console.error('Error on main.');
+                        });
+                    }).catch(function () {
+                        console.error('Error on pre.');
+                    });
+                }
+            };
+
+            if (autoAdd) {
+                event.addLast();
+                return event.id;
+            } else {
+                return event;
+            }
+        },
+        eventQueue: function () {
+            var arr = new Array();
+
+            arr.eventId = 0;
+            arr.isRunningEvent = false;
+            arr.newEventId = function () {
+                return arr.eventId++;
+            };
+            arr.addFirst = function (item) {
+                this.unshift(item);
+                if (!this.isRunningEvent) {
+                    this.go();
+                }
+            };
+            arr.addLast = function (item) {
+                this.push(item);
+                if (!this.isRunningEvent) {
+                    this.go();
+                }
+            };
+            arr.go = function () {
+                var event = this.shift();
+                if (!event) return;
+
+                event.run();
+            };
+
+            return arr;
+        },
+        testEvent: function () {
+            var event = TX.create.event({
+                type: 'test-event',
+                context: {
+                    payload: 'This is a test event.'
+                },
+                pre: function (resolve, reject, context) {
+                    var self = this;
+                    setTimeout(function () {
+                        console.log(self.id, 'pre');
+                        resolve(true);
+                    }, 1000);
+                },
+                main: function (resolve, reject, context) {
+                    var self = this;
+                    setTimeout(function () {
+                        console.log(self.id, 'main');
+                        console.log(self.id, context);
+                        resolve(true);
+                    }, 500);
+                },
+                post: function (resolve, reject, context) {
+                    console.log(this.id, 'post');
+                    resolve(true);
+                }
+            });
+
+            event.addLast();
+        },
         phrase: function (obj) {
             if (obj.text === false) {
                 return false;
@@ -195,7 +317,7 @@ var TX = {
                     readingTime: obj.readingTime || (obj.text.length * 80)
                 },
                 text: obj.text,
-                textillate:{
+                textillate: {
                     // the default selector to use when detecting multiple texts to animate
                     // selector: '.texts',
 
@@ -223,7 +345,7 @@ var TX = {
                     // in animation settings
                     in: {
                         // set the effect name
-                        effect: obj.effectIn || TX.settings.self.effectIn,
+                        effect: obj.effectIn || TX.settings.effectIn,
 
                         // set the delay factor applied to each consecutive character
                         delayScale: 1.5,
@@ -248,7 +370,7 @@ var TX = {
 
                     // out animation settings.
                     out: {
-                        effect: obj.effectOut || TX.settings.self.effectOut,
+                        effect: obj.effectOut || TX.settings.effectOut,
                         delayScale: 1.5,
                         delay: 50,
                         sync: false,
@@ -294,7 +416,6 @@ var TX = {
             return retVal;
         }
     },
-	queue: [],
 	/**
 	 * @memberOf TX
 	 * @namespace
@@ -304,6 +425,8 @@ var TX = {
 	},
 	handlers: {
 		click: function (event) {
+            event.preventDefault(); // Keeps hash
+
             var getRole = function (element) {
                 var targetRole = $(element).attr('TX-role') || false;
 
@@ -331,6 +454,7 @@ var TX = {
             roleRouter(role);
 		},
 		onLoad: function () {
+            TX.eventQueue = TX.create.eventQueue();
 			// setTimeout(function() {
 			// 	$("#loader-page-container").slideUp("fast");
 			// }, 250);
@@ -342,29 +466,37 @@ var TX = {
 		}
 	},
 	settings: {
-		self: {
-            get effectIn () {
-                return TX.constants.animateStyleOptions[TX.create.random({
-                    type: 'int',
-                    min: 0,
-                    max: 75
-                })];
-            },
-            get effectOut () {
-                return TX.constants.animateStyleOptions[TX.create.random({
-                    type: 'int',
-                    min: 0,
-                    max: 75
-                })];
-            },
-            imgPathPrefix: 'assets/img/unsplash/',
-            rawTextElementSelector: '#rawText',
-            textElementSelector: '#text',
-            preferredPhraseLength: 4,
-            phraseTerminator: '\n',
-			isCool: true
-		}
+        get effectIn () {
+            return TX.constants.animateStyleOptions[TX.create.random({
+                type: 'int',
+                min: 0,
+                max: 75
+            })];
+        },
+        get effectOut () {
+            return TX.constants.animateStyleOptions[TX.create.random({
+                type: 'int',
+                min: 0,
+                max: 75
+            })];
+        },
+        imgPathPrefix: 'assets/img/unsplash/',
+        rawTextElementSelector: '#rawText',
+        textElementSelector: '#text',
+        preferredPhraseLength: 4,
+        phraseTerminator: '\n',
+        isCool: true
 	},
+    start: function () {
+        var text = TX.convertArrayToText(TX.decodeTextToArray(location.hash.substring(1, location.hash.length)));
+        this.print(text, TX.settings);
+    },
+    stop: function () {
+        $(TX.settings.textElementSelector)
+            .children().eq(0)
+            .children().eq(0)
+            .textillate('stop');
+    },
     animate: function (phrase = false, callback = function (){}) {
         if (!phrase) return;
 
@@ -378,11 +510,11 @@ var TX = {
         // var showCallback = function () {
         //     setTimeout( function () {
         //         if (phrase.display.fadeOut) {
-        //             $(TX.settings.self.textElementSelector).fadeOut({
+        //             $(TX.settings.textElementSelector).fadeOut({
         //                 complete: callback
         //             });
         //         } else {
-        //             $(TX.settings.self.textElementSelector).hide({
+        //             $(TX.settings.textElementSelector).hide({
         //                 complete: callback
         //             });
         //         }
@@ -393,7 +525,7 @@ var TX = {
             .fadeOut(500, function () {
                 var self = this;
 
-                var imgPath = TX.settings.self.imgPathPrefix + TX.constants.imgPaths[Math.floor(Math.random() * TX.constants.imgPaths.length)];
+                var imgPath = TX.settings.imgPathPrefix + TX.constants.imgPaths[Math.floor(Math.random() * TX.constants.imgPaths.length)];
 
                 $('<img/>').attr('src', imgPath).load(function() {
                     $(this).remove(); // prevent memory leaks as @benweet suggested
@@ -404,27 +536,34 @@ var TX = {
                         '-moz-filter': 'blur(6px) saturate(0.8) brightness(0.5)',
                     })
                     .fadeIn(500, function () {
-                        $(TX.settings.self.textElementSelector)
-                            .html('')
-                            .append($textNode)
-                            .children().eq(0)
-                            .textillate(phrase.textillate);
+                        var prom = new Promise(function (resolve, reject) {
+                            phrase.textillate.callback = resolve;
+                            $(TX.settings.textElementSelector)
+                                .html('')
+                                .append($textNode)
+                                .children().eq(0)
+                                .textillate(phrase.textillate);
+                        }).then(function () {
+                            callback();
+                        });
                     });
                 });
             });
 
 
         // if (phrase.display.fadeIn) {
-        //     $(TX.settings.self.textElementSelector).fadeIn({
+        //     $(TX.settings.textElementSelector).fadeIn({
         //         complete: showCallback
         //     });
         // } else {
-        //     $(TX.settings.self.textElementSelector).show({
+        //     $(TX.settings.textElementSelector).show({
         //         complete: showCallback
         //     });
         // }
     },
     next: function () {
+        console.log('tx.next');
+        return;
         var phrase = TX.queue.shift();
         TX.animate(phrase, function () {
             if (TX.queue.length > 0) {
@@ -515,7 +654,7 @@ var TX = {
         return returnString;
     },
     convertTextToArray: function (text) {
-        var phrases = text.split(this.settings.self.phraseTerminator);
+        var phrases = text.split(this.settings.phraseTerminator);
         var tempPhrase;
         var tempArray;
         var word;
@@ -605,29 +744,18 @@ var TX = {
         var tempArr;
         var tempString;
 
-        var phrases = text.split(this.settings.self.phraseTerminator);
+        var phrases = text.split(this.settings.phraseTerminator);
         var numPhrases = phrases.length;
 
         while (i < numPhrases) {
-            // tempPhrase = phrases[i].split(' ');
-            // tempArr = [];
-
-            // j = 0;
-            // while (j < tempPhrase.length) {
-            //     if (text[i].indexOf(this.settings.self.phraseTerminator) > -1) {
-            //         tempArr.push(text[i]); i++;
-            //         j++;
-            //     }
-            //     tempArr.push(text[i]); i++;
-            //     j++;
-            // }
-
-            // tempString = tempArr.join(' ');
-            // returnVal.push(tempString);
+            if (phrases[i] === '') {
+                i++;
+                continue;
+            }
             tempPhrase = this.create.phrase({
                 text: phrases[i],
                 callbackFinal: function () {
-                    TX.next();
+                    this.resolve();
                 }
             });
 
@@ -642,7 +770,21 @@ var TX = {
         var steps = text.length;
         var i = 0;
 
-        console.log(text);
+        console.log(JSON.parse(JSON.stringify(text)));
+
+        text.map(function (val, ind) {
+            TX.create.event({
+                context: {
+                    phrase: val
+                },
+                main: function (resolve, reject, context) {
+                    TX.animate(context.phrase, function () {
+                        resolve();
+                    });
+                }
+            }).addLast();
+        });
+        return;
 
         TX.queue = text;
         TX.next();
@@ -683,32 +825,14 @@ var TX = {
 	}
 };
 
-var text =  [
-"I was",
-"There",
-"Then",
-"I was",
-"Not"
-];
 
-var opts = {
-    fade: true,
-    padding: 50,
-    wait: 900
-};
+TX.gui = new dat.GUI();
 
-TX.gui = new dat.GUI({
-    autoPlace: false
-});
-
-$('#debug-menu')
-    .append(TX.gui.domElement);
-
-TX.gui.add(opts, 'fade');
-TX.gui.add(opts, 'padding', 0, 200);
-TX.gui.add(opts, 'wait');
+TX.gui.add(TX, 'debug');
+TX.gui.add(TX.settings, 'preferredPhraseLength', 1, 12).step(1);
 TX.gui.add(TX, 'convert');
 TX.gui.add(TX, 'start');
+TX.gui.add(TX, 'stop');
 
 
 

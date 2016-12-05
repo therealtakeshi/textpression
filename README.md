@@ -1,5 +1,5 @@
 # Textpression
-A drop-in JavaScript library to make text fun and dramatic.
+A drop-in JavaScript library to make easy and sharable kinetic typography from any text.
 
 ### Status
 VERY MUCH UNSTABLE AND IN PROGRESS
