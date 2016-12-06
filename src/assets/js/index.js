@@ -163,7 +163,10 @@ var TX = {
             '5-lance-anderson.jpg',
             '7-israel-sundseth.jpg',
             '8-jacki-potorke.jpg',
-            '10-steven-lewis.jpg'
+            '10-steven-lewis.jpg',
+            'yzbrsfzxnow-jan-erik-waider.jpg',
+            'cphxm61ob_0-paul-itkin.jpg',
+            'ndqa4d5nl0k-stephy-pariande.jpg'
         ]
     },
     debug: true,
@@ -500,7 +503,7 @@ var TX = {
     animate: function (phrase = false, callback = function (){}) {
         if (!phrase) return;
 
-        var $textNode = $('<h1 class="text-dramatic">' + phrase.text + '</h1>');
+        var $textNode = $('<h1 class="text-dramatic example-one" data-text="' + phrase.text.toUpperCase() + '">' + phrase.text + '</h1>');
         // padding = ($('body').height() / steps) * index;
         // if (options.padding) {
         //     padding += options.padding;
