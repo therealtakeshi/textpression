@@ -38,13 +38,22 @@ html,body {
 .container-fluid {
 	height: 100%;
 	width: 100%;
+    overflow: hidden;
+    text-overflow: hidden;
+}
+
+#text-container {
+    height: inherit;
+    overflow: hidden;
+    display: table;
+    position: fixed;
+    /*padding: 0;*/
 }
 
 #text {
-	height: 100%;
-	padding: 200px;
-	background: transparent;
-	overflow: hidden;
+    display: table-cell;
+    vertical-align: middle;
+    padding: 0;
 }
 
 .text-default {
@@ -53,12 +62,11 @@ html,body {
 }
 
 .text-dramatic {
-	font-size: 6rem;
-	/* font-weight: bolder; */
-	color: lightgrey;
-	text-shadow: 0 0 2em white, 0 0 2em #D47A2D, 0 0 1em #D47A2D;
-	text-align: center;
+	color: #FEFEFE;
+    font-size: 6rem;
     font-family: 'Lemon/Milk', 'Lato', 'helvetica', sans-serif;
+    text-align: center;
+    text-shadow: 0px -6px darkgray, 14px -6px 20px #2E2E2E;
 }
 
 #rawText {
@@ -194,6 +202,13 @@ html,body {
 
 .loader-corner > div > div {
 	border: 5px solid #263238;
+}
+
+.neon-blue {
+    color: #32FFFF;
+    -webkit-filter: drop-shadow( 0px 0px 8px #2BECFD );
+       -moz-filter: drop-shadow( 0px 0px 8px #2BECFD );
+            filter: drop-shadow( 0px 0px 8px #2BECFD );
 }
 
 /**

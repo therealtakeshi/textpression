@@ -11,6 +11,9 @@ var TX = {
      * @type {Object}
      */
     constants: {
+        backgroundSelector: '.background',
+        fadeInDuration: 500,
+        fadeOutDuration: 500,
         wordList: wordList,
         SYMBOL_EOL: '\n',
         DELIMITER_SPACE: this.wordList.RESERVED[0],
@@ -19,6 +22,47 @@ var TX = {
         DELIMITER_UPPERCASE: this.wordList.RESERVED[3],
         DELIMITER_PROPERCASE: this.wordList.RESERVED[4],
         DELIMITER_VOCAB: this.wordList.RESERVED[5],
+        background: {
+            svg: {
+                neonDemon: {
+                    type: 'svg',
+                    selector: '#svg-neon-demon',
+                    class: 'neon-blue',
+                    animate: function (element) {
+                        var children = $(element).children();
+
+                        $(children[0]).velocity({
+                            stroke: '#2BECFD'
+                        }, {
+                            duration: 1000,
+                            loop: true
+                        });
+                        $(children[1]).velocity({
+                            stroke: '#32EE32'
+                        }, {
+                            delay: 20,
+                            duration: 1000,
+                            loop: true
+                        });
+                        $(children[2]).velocity({
+                            stroke: '#F00'
+                        }, {
+                            delay: 40,
+                            duration: 1000,
+                            loop: true
+                        });
+                        $(children[3]).velocity({
+                            stroke: '#FF0'
+                        }, {
+                            delay: 40,
+                            duration: 1000,
+                            loop: true
+                        });
+                    }
+                }
+            },
+            image: {}
+        },
         animateStyleOptions: [
             'bounce',
             'flash',
@@ -171,6 +215,49 @@ var TX = {
     },
     debug: true,
     create: {
+        background: function (obj = false) {
+            if (!obj) console.error('No options obj given.');
+
+            return new Promise(function (resolve, reject) {
+                if (obj.type === 'image') {
+                    var imageCss = {
+                        background: 'no-repeat center url(' + obj.path + ')'
+                    };
+
+                    if (obj.imageFilter) {
+                        imageCss['filter'] = obj.imageFilter;
+                        imageCss['-moz-filter'] = obj.imageFilter;
+                        imageCss['-webkit-filter'] = obj.imageFilter;
+                    }
+
+                    $('<img/>').attr('src', obj.path).load(function() {
+                        $(this).remove(); // prevent memory leaks as @benweet suggested
+
+                        $(TX.constants.backgroundSelector)
+                            .css(imageCss)
+                            .fadeIn(TX.constants.fadeInDuration, function () {
+                                resolve();
+                            });
+                    });
+                } else if (obj.type === 'svg') {
+                    var svg = $($(obj.selector).html());
+
+                    if (obj.class) {
+                        svg.addClass(obj.class);
+                    }
+
+                    $(TX.constants.backgroundSelector)
+                        .append(svg)
+                        .fadeIn(TX.constants.fadeInDuration, function () {
+                            if (obj.animate) {
+                                obj.animate($(this).children(svg).eq(0));
+                            }
+                            resolve();
+                        });
+                }
+            });
+
+        },
         event: function (obj, autoAdd) {
             var event = {
                 id: TX.eventQueue.newEventId(),
@@ -210,7 +297,7 @@ var TX = {
                 addLast: function () {
                     TX.eventQueue.addLast(this);
                 },
-                run: function () {
+                run: function (previousEvent = false) {
                     var self = this;
                     TX.eventQueue.isRunningEvent = true;
                     console.log(this);
@@ -218,6 +305,7 @@ var TX = {
                         self.main().then(function () {
                             self.post().then(function () {
                                 TX.eventQueue.isRunningEvent = false;
+                                TX.eventQueue.previousEvent = self;
                                 TX.eventQueue.go();
                             }).catch(function () {
                                 console.error('Error on post.');
@@ -243,6 +331,7 @@ var TX = {
 
             arr.eventId = 0;
             arr.isRunningEvent = false;
+            arr.previousEvent = false;
             arr.newEventId = function () {
                 return arr.eventId++;
             };
@@ -262,6 +351,10 @@ var TX = {
                 var event = this.shift();
                 if (!event) return;
 
+                if (this.previousEvent) {
+                    console.log('previousEvent', this.previousEvent);
+                    event._context._previousEvent = this.previousEvent;
+                }
                 event.run();
             };
 
@@ -425,6 +518,37 @@ var TX = {
 	 * @type {Object}
 	 */
 	display: {
+        background: {
+            hide: function (obj = false) {
+                if (!obj) {
+                    console.error('No options object given.');
+                }
+
+                if (obj.type === 'fadeOut') {
+                    $(TX.constants.backgroundSelector).fadeOut(obj.duration || TX.constants.fadeOutDuration, function () {
+                        if (obj.clear) {
+                            $(this)
+                                .removeAttr('style')
+                                .children().remove();
+                        }
+                        if (obj.callback) {
+                            obj.callback();
+                        }
+                    });
+                } else {
+                    $(TX.constants.backgroundSelector).hide(0, function () {
+                        if (obj.clear) {
+                            $(this)
+                                .removeAttr('style')
+                                .children().remove();
+                        }
+                        if (obj.callback) {
+                            obj.callback();
+                        }
+                    });
+                }
+            }
+        }
 	},
 	handlers: {
 		click: function (event) {
@@ -492,7 +616,15 @@ var TX = {
 	},
     start: function () {
         var text = TX.convertArrayToText(TX.decodeTextToArray(location.hash.substring(1, location.hash.length)));
-        this.print(text, TX.settings);
+
+        TX.display.background.hide({
+            type: 'fadeOut',
+            clear: true,
+            // duration: 200,
+            callback: function () {
+                TX.print(text, TX.settings);
+            }
+        });
     },
     stop: function () {
         $(TX.settings.textElementSelector)
@@ -503,66 +635,36 @@ var TX = {
     animate: function (phrase = false, callback = function (){}) {
         if (!phrase) return;
 
-        var $textNode = $('<h1 class="text-dramatic example-one" data-text="' + phrase.text.toUpperCase() + '">' + phrase.text + '</h1>');
-        // padding = ($('body').height() / steps) * index;
-        // if (options.padding) {
-        //     padding += options.padding;
-        // }
-        // $textNode.css('padding-top', padding + 'px');
+        var $textNode = $('<p class="text-dramatic" data-text="' + phrase.text.toUpperCase() + '">' + phrase.text + '</p>');
+        var backgroundPromise;
 
-        // var showCallback = function () {
-        //     setTimeout( function () {
-        //         if (phrase.display.fadeOut) {
-        //             $(TX.settings.textElementSelector).fadeOut({
-        //                 complete: callback
-        //             });
-        //         } else {
-        //             $(TX.settings.textElementSelector).hide({
-        //                 complete: callback
-        //             });
-        //         }
-        //     }, phrase.display.readingTime);
-        // };
+        if (Math.random() >= 0.5) {
+            backgroundPromise = TX.create.background({
+                type: 'image',
+                imageFilter: 'blur(6px) saturate(0.8) brightness(0.5)',
+                path: TX.settings.imgPathPrefix + TX.constants.imgPaths[Math.floor(Math.random() * TX.constants.imgPaths.length)]
+            });
+        } else {
+            backgroundPromise = TX.create.background(TX.constants.background.svg.neonDemon);
+        }
 
-        $('.background')
-            .fadeOut(500, function () {
-                var self = this;
-
-                var imgPath = TX.settings.imgPathPrefix + TX.constants.imgPaths[Math.floor(Math.random() * TX.constants.imgPaths.length)];
-
-                $('<img/>').attr('src', imgPath).load(function() {
-                    $(this).remove(); // prevent memory leaks as @benweet suggested
-
-                    $(self).css({
-                        'background': 'no-repeat center url(' + imgPath + ')',
-                        'filter': 'blur(6px) saturate(0.8) brightness(0.5)',
-                        '-moz-filter': 'blur(6px) saturate(0.8) brightness(0.5)',
-                    })
-                    .fadeIn(500, function () {
-                        var prom = new Promise(function (resolve, reject) {
-                            phrase.textillate.callback = resolve;
-                            $(TX.settings.textElementSelector)
-                                .html('')
-                                .append($textNode)
-                                .children().eq(0)
-                                .textillate(phrase.textillate);
-                        }).then(function () {
-                            callback();
-                        });
-                    });
+        backgroundPromise.then(function () {
+            var prom = new Promise(function (resolve, reject) {
+                phrase.textillate.callback = resolve;
+                $(TX.settings.textElementSelector)
+                    .html('')
+                    .append($textNode)
+                    .children().eq(0)
+                    .textillate(phrase.textillate);
+            }).then(function () {
+                TX.display.background.hide({
+                    type: 'fadeOut',
+                    clear: true,
+                    // duration: 200,
+                    callback: callback
                 });
             });
-
-
-        // if (phrase.display.fadeIn) {
-        //     $(TX.settings.textElementSelector).fadeIn({
-        //         complete: showCallback
-        //     });
-        // } else {
-        //     $(TX.settings.textElementSelector).show({
-        //         complete: showCallback
-        //     });
-        // }
+        });
     },
     next: function () {
         console.log('tx.next');
