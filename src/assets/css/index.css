@@ -106,6 +106,7 @@ html,body {
 	position: absolute;
 	margin-top: 12px;
     opacity: 0.6;
+    z-index: 999;
 }
 .header-menu-button:visited,
 .header-menu-button:focus,
@@ -206,9 +207,9 @@ html,body {
 
 .neon-blue {
     color: #32FFFF;
-    -webkit-filter: drop-shadow( 0px 0px 8px #2BECFD );
-       -moz-filter: drop-shadow( 0px 0px 8px #2BECFD );
-            filter: drop-shadow( 0px 0px 8px #2BECFD );
+    -webkit-filter: drop-shadow( 0px 0px 8px #2BECFD ) drop-shadow(-4px -4px 8px hotpink);
+       -moz-filter: drop-shadow( 0px 0px 8px #2BECFD ) drop-shadow(-4px -4px 8px hotpink);
+            filter: drop-shadow( 0px 0px 8px #2BECFD ) drop-shadow(-4px -4px 8px hotpink);
 }
 
 /**

@@ -82,13 +82,7 @@
         </div>
 
         <div class="container-fluid" TX-role='escape'>
-            <div class="background">
-
-<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 48 48" style='opacity: 0.5'>
-    <path d="M24 48C10.746 48 0 37.254 0 24S10.746 0 24 0s24 10.746 24 24-10.746 24-24 24zm0-6c5.31 0 10.035-2.343 13.329-6H10.671c3.294 3.657 8.019 6 13.329 6zm0-36C14.061 6 6 14.061 6 24c0 2.115.432 4.116 1.101 6h33.798C41.565 28.116 42 26.115 42 24c0-9.939-8.061-18-18-18z"/>
-</svg>
-
-            </div>
+            <div class="background"></div>
             <div class="col-xs-12 header header-menu" TX-role='escape'>
                 <div class="col-xs-12 row">
                     <div class="col-xs-1">
@@ -113,12 +107,45 @@
     <script src="assets/js/index.js" type="text/javascript"></script>
 
     <!-- Templates -->
+    <script id="svg-symbol" type="text/x-handlebars-template">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style='height: 100%; width: 100%; opacity: 0.5; padding: 80px;'>
+            <path d="M24 48C10.746 48 0 37.254 0 24S10.746 0 24 0s24 10.746 24 24-10.746 24-24 24zm0-6c5.31 0 10.035-2.343 13.329-6H10.671c3.294 3.657 8.019 6 13.329 6zm0-36C14.061 6 6 14.061 6 24c0 2.115.432 4.116 1.101 6h33.798C41.565 28.116 42 26.115 42 24c0-9.939-8.061-18-18-18z"/>
+            <defs>
+            <path id="circle" d="M24 48C10.746 48 0 37.254 0 24S10.746 0 24 0s24 10.746 24 24-10.746 24-24 24zm0-6c5.31 0 10.035-2.343 13.329-6H10.671c3.294 3.657 8.019 6 13.329 6zm0-36C14.061 6 6 14.061 6 24c0 2.115.432 4.116 1.101 6h33.798C41.565 28.116 42 26.115 42 24c0-9.939-8.061-18-18-18z"/>
+            </defs>
+            <text x="0" y="0" style="fill: #FFF; font-size: 0.6rem;">
+                <textPath xlink:href="#circle">Born seventy years before me</textPath>
+            </text>
+        </svg>
+    </script>
     <script id="svg-neon-demon" type="text/x-handlebars-template">
     <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100">
         <path d='M 4,4 L26,48 L49,4 z' fill='transparent' stroke-width='1' stroke='#32FFFF'></path>
         <path d='M 51,4 L74,48 L96,4 z' fill='transparent' stroke-width='1' stroke='#32FFFF'></path>
         <path d='M 28,52 L50,96 L72,52 z' fill='transparent' stroke-width='1' stroke='#32FFFF'></path>
         <line x1="27" y1="50" x2="73" y2="50" stroke-width='0.5' stroke='#32FFFF'></line>
+    </svg>
+    </script>
+    <script id="svg-simple-path" type="text/x-handlebars-template">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1280 960" >
+        <defs>
+            <path id="svg_1" d="M77,528 L1112,354" stroke-width="1.5" stroke="#000" />
+            <path id="svg_2" d="M55,263 L923,377" stroke-width="1.5" stroke="#000" />
+            <path id="svg_3" d="M0,595 L1284,643" stroke-width="1.5" stroke="#000" />
+            <path id="svg_4" d="M0,873 Q300,600 1287,883" stroke-width="1.5" stroke="#000" />
+        </defs>
+        <text x="0" y="0" style="fill: #FFF;font-size: 6rem;">
+            <textPath xlink:href="#svg_2">Text along a</textPath>
+        </text>
+        <text x="0" y="0" style="fill: #FFF;font-size: 6rem;">
+            <textPath xlink:href="#svg_1">more advanced </textPath>
+        </text>
+        <text x="0" y="0" style="fill: #FFF;font-size: 6rem;">
+            <textPath xlink:href="#svg_3">path with lines</textPath>
+        </text>
+        <text x="0" y="0" style="fill: #FFF;font-size: 6rem;">
+            <textPath xlink:href="#svg_4">and curves.</textPath>
+        </text>
     </svg>
     </script>
 </body>

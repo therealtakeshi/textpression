@@ -32,32 +32,48 @@ var TX = {
                         var children = $(element).children();
 
                         $(children[0]).velocity({
-                            stroke: '#2BECFD'
+                            stroke: '#FE1968'
                         }, {
                             duration: 1000,
                             loop: true
                         });
                         $(children[1]).velocity({
-                            stroke: '#32EE32'
+                            stroke: '#FE1968'
                         }, {
                             delay: 20,
                             duration: 1000,
                             loop: true
                         });
                         $(children[2]).velocity({
-                            stroke: '#F00'
+                            stroke: '#FE1968'
                         }, {
                             delay: 40,
                             duration: 1000,
                             loop: true
                         });
                         $(children[3]).velocity({
-                            stroke: '#FF0'
+                            stroke: '#FE1968'
                         }, {
                             delay: 40,
                             duration: 1000,
                             loop: true
                         });
+                    }
+                },
+                simplePath: {
+                    type: 'svg',
+                    selector: '#svg-simple-path',
+                    class: 'neon-blue',
+                    animate: function (element) {
+                        return;
+                    }
+                },
+                symbol: {
+                    type: 'svg',
+                    selector: '#svg-symbol',
+                    class: 'neon-blue',
+                    animate: function (element) {
+                        return;
                     }
                 }
             },
@@ -582,6 +598,8 @@ var TX = {
 		},
 		onLoad: function () {
             TX.eventQueue = TX.create.eventQueue();
+
+            TX.create.background(TX.constants.background.svg.symbol);
 			// setTimeout(function() {
 			// 	$("#loader-page-container").slideUp("fast");
 			// }, 250);
@@ -620,7 +638,7 @@ var TX = {
         TX.display.background.hide({
             type: 'fadeOut',
             clear: true,
-            // duration: 200,
+            duration: 200,
             callback: function () {
                 TX.print(text, TX.settings);
             }
@@ -648,15 +666,17 @@ var TX = {
             backgroundPromise = TX.create.background(TX.constants.background.svg.neonDemon);
         }
 
-        backgroundPromise.then(function () {
-            var prom = new Promise(function (resolve, reject) {
-                phrase.textillate.callback = resolve;
-                $(TX.settings.textElementSelector)
-                    .html('')
-                    .append($textNode)
-                    .children().eq(0)
-                    .textillate(phrase.textillate);
-            }).then(function () {
+        backgroundPromise
+            .then(function () {
+                var prom = new Promise(function (resolve, reject) {
+                    phrase.textillate.callback = resolve;
+                    $(TX.settings.textElementSelector)
+                        .html('')
+                        .append($textNode)
+                        .children().eq(0)
+                        .textillate(phrase.textillate);
+                })
+            .then(function () {
                 TX.display.background.hide({
                     type: 'fadeOut',
                     clear: true,
